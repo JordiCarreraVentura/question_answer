@@ -3,7 +3,9 @@ from collections import (
     defaultdict as deft
 )
 
+
 class Dataset:
+
 
     def __init__(self, path):
         self.source = path
@@ -33,10 +35,19 @@ class Dataset:
 
 
     def __iter__(self):
-        for topic, elements in self.templated.items():
-            yield {
-                'topic': topic,
-                'data': elements,
-                'context': self.context[topic]
-            }
+        for topic, data in self.templated.items():
+            if len(data) > 1:
+                yield {
+                    'topic': topic,
+                    'data': data,
+                    'context': self.context[topic],
+                    'type': 'template'
+                }
+            else:
+                yield {
+                    'topic': topic,
+                    'data': data,
+                    'context': self.context[topic],
+                    'type': 'negative_example'
+                }
 
