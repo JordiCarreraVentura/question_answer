@@ -1,9 +1,14 @@
 import json
 
 from Classifier import Classifier
+
 from Dataset import Dataset
+
 from FeatureEngine import FeatureEngine
 
+from Workflow import (
+    partition_dataset
+)
 
 
 if __name__ == '__main__':
@@ -15,23 +20,22 @@ if __name__ == '__main__':
 
     fe = FeatureEngine()
     cls = Classifier()
-    test, train = [], []
-    for i, topic in enumerate(dataset):
-        print json.dumps(topic, indent=4)
-
-        for instance in topic['context']:
-            triple = (' '.join(fe(instance['answer'])), topic['topic'], None)
-            train.append(triple)
-
-        for instance in topic['data']:
-            triple = (' '.join(fe(instance['answer'])), topic['topic'], None)
-            test.append(triple)
-
-        print i
-        print
+    train, test = partition_dataset(dataset, fe, min_ctxt=5, n_macros=300)
 
     cls.train(train)
-    for i, guess in enumerate(cls.test(test)):
-        print test[i]
-        print guess[:5]
-        print
+    tp, tp3 = 0, 0
+    for i, guesses in enumerate(cls.test(test)):
+#         print test[i]
+#         print guess[:5]
+        gold = test[i][1]
+        if gold in [label for prob, label in guesses[:1]]:
+            tp += 1
+            tp3 += 1
+            print tp, tp3, len(test), round(tp / float(len(test)), 4), round(tp3 / float(len(test)), 4)
+        elif gold in [label for prob, label in guesses[:3]]:
+            tp3 += 1
+            print tp, tp3, len(test), round(tp / float(len(test)), 4), round(tp3 / float(len(test)), 4)
+#         else:
+#             print test[i][2], '\t', test[i][1]
+#             print guesses[:10]
+#             raw_input()
