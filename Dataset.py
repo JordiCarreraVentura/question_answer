@@ -34,6 +34,10 @@ class Dataset:
                     self.context[topic].append(template)
 
 
+    def __gettitem__(self, topic):
+        return self.templated[topic]
+
+
     def __iter__(self):
         for topic, data in self.templated.items():
             if len(data) > 1:

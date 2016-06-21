@@ -63,9 +63,5 @@ class Classifier:
             return self.classifier.predict(self.vectors)
 
 
-
-
-
-
 def f_score(accuracy, recall):
     return 2 * ((accuracy * recall) / (accuracy + recall))
