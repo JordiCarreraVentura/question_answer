@@ -15,7 +15,8 @@ from nltk.corpus import stopwords
 
 
 STOPWORDS = {
-    'es': stopwords.words('spanish')
+    'es': stopwords.words('spanish'),
+    'en': stopwords.words('english')
 }
 
 
@@ -435,3 +436,13 @@ def json_print(data):
 
 def normalize(string):
     return unicode2ascii(string.strip().lower())
+
+
+stopwords = deft(bool)
+for w in STOPWORDS['en']:
+    stopwords[w] = True
+
+def words(text):
+    tokens = [w for w in tokenizer(text.lower()) if w != 'PUNCT']
+#     return tokens
+    return [w for w in tokens if not stopwords[w]]
