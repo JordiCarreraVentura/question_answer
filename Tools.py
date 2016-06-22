@@ -442,7 +442,16 @@ stopwords = deft(bool)
 for w in STOPWORDS['en']:
     stopwords[w] = True
 
+
 def words(text):
     tokens = [w for w in tokenizer(text.lower()) if w != 'PUNCT']
 #     return tokens
     return [w for w in tokens if not stopwords[w]]
+
+
+def f1(prec, recall):
+    return 2 * ((prec * recall) / (prec + recall))
+
+
+def average(values):
+    return sum(values) / len(values)
