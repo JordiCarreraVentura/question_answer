@@ -16,6 +16,8 @@ from Index import Index
 from InverseProbabilities import InverseProbabilities
 
 from Tools import (
+    average as avg,
+    f1,
     normalize,
 #     STOPWORDS,
     to_csv,
@@ -29,7 +31,11 @@ from Tools import (
 
 
 
-KEYS = ('Question', 'Topic', 'Correct', 'Predicted', 'Gold')
+#KEYS = ('Question', 'Topic', 'Correct', 'Predicted', 'Gold')
+RATIO_TEST_DATA = 0.4
+RATIO_SPECIFICTY = 1.0
+RATIO_CONFIDENCE = 0.9
+EXPERIMENTS = 40
 
 
 fe = FeatureEngine()
@@ -43,126 +49,98 @@ def bow(text, prob_filter=None):
     else:
         prob_words = sorted([(prob_filter[w], w) for w in words(text)])
 #         return fe(' '.join([w for p, w in prob_words[-int(len(prob_words) * 0.8):]]))
-        return [w for p, w in prob_words[-int(len(prob_words) * 0.8):]]
+        return [w for p, w in prob_words[-int(len(prob_words) * RATIO_SPECIFICTY):]]
 
 
 
 if __name__ == '__main__':
 
-    dataset = Dataset(
-        '/Users/jordi/Laboratorio/corpora/anotados/Microsoft-WikiQA-corpus/WikiQACorpus/WikiQA.tsv'
-        )
-    dataset.load()
+    results = []
+    for e in range(1, EXPERIMENTS + 1):
 
-#     fe = FeatureEngine(ngrams=True)
-#     fe = FeatureEngine()
-    cls = Classifier()
-    invprob = InverseProbabilities(dataset)
-    index = Index(invprob)
+        dataset = Dataset(
+            '/Users/jordi/Laboratorio/corpora/anotados/Microsoft-WikiQA-corpus/WikiQACorpus/WikiQA.tsv'
+            )
+        dataset.load()
 
-    train = [
-#         (bow(label, prob_filter=invprob) + bow(text, prob_filter=invprob), label, mark)
-        (bow(text, prob_filter=invprob), label, mark)
-        for text, label, mark in dataset.train()
-    ]
 
-    test = [
-        (bow(label, prob_filter=invprob), label, mark)
-        for text, label, mark in dataset.test()
-        if mark
-    ][:int(len(train) * 0.4)]
+        #    first task
+        invprob = InverseProbabilities(dataset)
+        index = Index(invprob)
 
-    test += [
-        (bow(label, prob_filter=invprob), label, mark)
-        for text, label, mark in dataset.test()
-        if not mark
-    ][:len(test)]
+        train = [
+    #         (bow(label, prob_filter=invprob) + bow(text, prob_filter=invprob), label, mark)
+            (bow(text, prob_filter=invprob), label, mark)
+            for text, label, mark in dataset.train()
+        ]
 
-    for tbow, label, mark in train:
-        index.update(tbow)
-        index.add(label)
+        test = [
+    #         (bow(label, prob_filter=invprob), label, mark)
+            (bow(text, prob_filter=invprob), label, mark)
+            for text, label, mark in dataset.test()
+            if mark
+        ][:int(len(train) * RATIO_TEST_DATA)]
 
-    tp, tn, fp, fn = 0, 0, 0, 0
-    marked = sum([1 for _, _, mark in test if mark])
-    for tbow, label, mark in test:
-        expectation = sum([invprob[w] for w in set(bow(label, prob_filter=invprob))])
-        matches = index(tbow)
+        test += [
+    #         (bow(label, prob_filter=invprob), label, mark)
+            (bow(text, prob_filter=invprob), label, mark)
+            for text, label, mark in dataset.test()
+            if not mark
+        ][:len(test)]
 
-        if not matches and not mark:
-            tn += 1
-            continue
-        elif not matches and mark:
-            fn += 1
-            continue
+        for tbow, label, mark in train:
+            index.update(tbow)
+            index.add(label)
 
-        best_match = matches[0]
-        guess = best_match[2]
-        sim = best_match[0]
-        ratio = sim / expectation
+        tp, tn, fp, fn = 0, 0, 0, 0
+        marked = sum([1 for _, _, mark in test if mark])
+        for tbow, label, mark in test:
+            expectation = sum([invprob[w] for w in set(bow(label, prob_filter=invprob))])
+            matches = index(tbow)
 
-        if ratio <= 0.9:
-            if not mark:
+            if not matches and not mark:
                 tn += 1
-            else:
+                continue
+            elif not matches and mark:
                 fn += 1
-        else:
-            if mark and guess == label:
-                tp += 1
-            elif mark:
-                fp += 1
+                continue
 
-        if tp:
-            prec = tp / float(tp + fp)
-            rec = tp / float(tp + fn)
-        else:
-            prec, rec = 0.0, 0.0
+            best_match = matches[0]
+            guess = best_match[2]
+            sim = best_match[0]
+            ratio = sim / expectation
 
-        print label
-        print words(label)
-        print expectation
-        for x in matches[:5]:
-            print '\t', x[0] / expectation, x
-        print 'tp: %d, tn: %d, fp: %d, fn: %d, all: %d, prec: %.2f, rec: %.2f' % (tp, tn, fp, fn, sum([tp, tn, fp, fn]), prec, rec)
-        print
-#         raw_input()
-#     exit()
+            if ratio <= RATIO_CONFIDENCE:
+                if not mark:
+                    tn += 1
+                else:
+                    fn += 1
+            else:
+                if mark and guess == label:
+                    tp += 1
+                elif mark:
+                    fp += 1
 
+            if tp:
+                prec = tp / float(tp + fp)
+                rec = tp / float(tp + fn)
+                f = f1(prec, rec)
+            else:
+                prec, rec, f = 0.0, 0.0, 0.0
 
-    exit()
+            vector = (e, tp, tn, fp, fn, prec, rec, f)
+            results.append(vector)
 
+#             print label
+#             print words(label)
+#             print expectation
+#             for x in matches[:5]:
+#                 print '\t', x[0] / expectation, x
+#             print 'tp: %d, tn: %d, fp: %d, fn: %d, all: %d, prec: %.2f, rec: %.2f, f1: %.2f' % (tp, tn, fp, fn, sum([tp, tn, fp, fn]), prec, rec, f)
+#             print
 
-    train = [
-        (' '.join(fe(text)), label, mark)
-        for text, label, mark in dataset.train()
-    ]
+        print '%d, tp: %d, tn: %d, fp: %d, fn: %d, all: %d, prec: %.2f, rec: %.2f, f1: %.2f' % (e, tp, tn, fp, fn, sum([tp, tn, fp, fn]), prec, rec, f)
+        precs, recs, fs = zip(*results)[-3:]
+        print e, avg(precs), avg(recs), avg(fs)
+        print '---'
 
-    test = [
-        (' '.join(fe(text)), label, mark)
-        for text, label, mark in dataset.test()
-        if mark
-    ]
-
-    test += [
-        (' '.join(fe(text)), label, mark)
-        for text, label, mark in dataset.test()
-        if not mark
-    ][:len(test)]
-
-    cls.train(train)
-
-    tp, tp3, hits, hits3 = 0, 0, 0, 0
-    report = []
-    randoms = []
-    for i, guesses in enumerate(cls.test(test)):
-        gold = test[i][1]
-        if gold in [label for prob, label in guesses[:1]]:
-            tp += 1
-            tp3 += 1
-            print tp, tp3, len(test), round(tp / float(len(test)), 4), round(tp3 / float(len(test)), 4)
-        elif gold in [label for prob, label in guesses[:3]]:
-            tp3 += 1
-            print tp, tp3, len(test), round(tp / float(len(test)), 4), round(tp3 / float(len(test)), 4)
-#         else:
-#             print test[i][2], '\t', test[i][1]
-#             print guesses[:10]
-#             raw_input()
