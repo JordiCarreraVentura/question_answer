@@ -87,3 +87,8 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Repository-specific exclusions
+*.csv
+trash.py
+log.txt
