@@ -51,15 +51,15 @@ def runner(
         ]
 
         test = [
-    #         (bow(fe, label, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
-            (bow(fe, text, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
+            (bow(fe, label, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
+#             (bow(fe, text, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
             for text, label, mark in dataset.test()
             if mark
         ][:int(len(train) * RATIO_TEST_DATA)]
 
         test += [
-    #         (bow(fe, label, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
-            (bow(fe, text, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
+            (bow(fe, label, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
+#             (bow(fe, text, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
             for text, label, mark in dataset.test()
             if not mark
         ][:len(test)]
@@ -102,6 +102,11 @@ def runner(
             else:
                 if mark and guess == label:
                     tp += 1
+#                     print guess
+#                     print label
+#                     print tbow
+#                     print train[best_match[1]]
+#                     print '--'
                 elif mark:
                     fp += 1
                     _qtype = '_'.join(guess.lower().split()[:2])
@@ -125,12 +130,12 @@ def runner(
         
     to_csv(
         [tuple([f] + list(key)) for key, f in errors.most_common()],
-        'first_task.errors.csv'
+        'second_task.errors.csv'
     )
     
     to_csv(
         qtypes.dump(),
-        'first_task.error.question_types.csv'
+        'second_task.error.question_types.csv'
     )
 
 
