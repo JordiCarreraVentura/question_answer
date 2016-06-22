@@ -5,7 +5,7 @@ def partition_dataset(dataset, feature_engine, min_ctxt=5, n_macros=300):
     fe = feature_engine
     test, train = [], []
     for i, topic in enumerate(dataset):
-        #print json.dumps(topic, indent=4)
+#         print json.dumps(topic, indent=4)
 
         #	skip if the current topic has fewer than min_ctxt answers
         #	to use as training to detect that topic:
@@ -23,7 +23,7 @@ def partition_dataset(dataset, feature_engine, min_ctxt=5, n_macros=300):
             train.append(triple)
 
         #	collect test instance (question):
-        for instance in topic['data']:
+        for instance in topic['data'][:1]:
 #             q = instance['answer']
             q = instance['question']
             triple = (
@@ -34,9 +34,8 @@ def partition_dataset(dataset, feature_engine, min_ctxt=5, n_macros=300):
             test.append(triple)
 
         #	terminate after iterating over n_macros templates:
-        print i
-        if i == n_macros:
+        print i, n_macros
+        if i >= n_macros:
             break
-        print
     
     return train, test
