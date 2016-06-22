@@ -455,3 +455,13 @@ def f1(prec, recall):
 
 def average(values):
     return sum(values) / len(values)
+
+
+def bow(fe, text, ratio, prob_filter=None):
+    if not prob_filter:
+#         return fe(' '.join(words(text)))
+        return words(text)
+    else:
+        prob_words = sorted([(prob_filter[w], w) for w in words(text)])
+#         return fe(' '.join([w for p, w in prob_words[-int(len(prob_words) * ratio):]]))
+        return [w for p, w in prob_words[-int(len(prob_words) * ratio):]]
