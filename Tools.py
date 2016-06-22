@@ -450,7 +450,7 @@ def words(text):
 
 
 def f1(prec, recall):
-    return 2 * ((prec * recall) / (prec + recall))
+    return (2 * prec * recall) / (prec + recall)
 
 
 def average(values):
