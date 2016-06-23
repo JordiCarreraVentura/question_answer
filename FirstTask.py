@@ -15,14 +15,23 @@ from QuestionTypes import QuestionTypes
 from Tools import (
     average as avg,
     bow,
+    columns,
     f1,
     normalize,
+    rounding as _r,
     to_csv,
     tokenizer
 )
 
 
+
+RESULTS_KEYS = [
+    ('Iteration', 'TruePositives', 'TrueNegatives',
+     'FalsePositives', 'FalseNegatives',
+     'Precision', 'Recall', 'F-1_Measure')
+    ]
 ERROR_KEYS = ('Occurrences', 'ErrorType', 'Predicted', 'Expected')
+RESULTS_FOLDER = 'results/first/'
 
 def runner(
         PATH_DATA,
@@ -30,7 +39,8 @@ def runner(
         RATIO_SPECIFICITY,
         RATIO_CONFIDENCE,
         EXPERIMENTS,
-        fe
+        fe,
+        setting_name
     ):
 
     results = []
@@ -90,15 +100,17 @@ def runner(
             best_match = matches[0]
             guess = best_match[2]
             sim = best_match[0]
-            ratio = sim / expectation
+            ratio = sim / (expectation + 0.1)
 
             if ratio <= RATIO_CONFIDENCE:
                 if not mark:
                     tn += 1
+                    continue
                 else:
                     fn += 1
                     errors[('fn', '', label)] += 1
                     qtypes.update('fn', None, label)
+                    continue
             else:
                 if mark and guess == label:
                     tp += 1
@@ -115,23 +127,41 @@ def runner(
             else:
                 prec, rec, f = 0.0, 0.0, 0.0
 
-            vector = (e, tp, tn, fp, fn, prec, rec, f)
+            vector = (e, _r(tp), _r(tn), _r(fp),
+                      _r(fn), _r(prec), _r(rec), _r(f))
             results.append(vector)
 
-        print '%d, tp: %d, tn: %d, fp: %d, fn: %d, all: %d, prec: %.2f, rec: %.2f, f1: %.2f' % (e, tp, tn, fp, fn, sum([tp, tn, fp, fn]), prec, rec, f)
-        precs, recs, fs = zip(*results)[-3:]
-        print e, avg(precs), avg(recs), avg(fs)
-        print '---'
-        
+            print '%d, tp: %d, tn: %d, fp: %d, fn: %d, all: %d, prec: %.2f, rec: %.2f, f1: %.2f' % (e, tp, tn, fp, fn, sum([tp, tn, fp, fn]), prec, rec, f)
+            precs, recs, fs = zip(*results)[-3:]
+            print e, avg(precs), avg(recs), avg(fs)
+            print '---'
+
+    if not results:
+        return None
+
+    cols = columns(results)
+    columns_int = [avg(col) for col in cols[:4]]
+    columns_float = [_r(avg(col)) for col in cols[4:]]
+    summary_row = [
+        tuple(['all'] + columns_int + columns_float)
+    ]
+
+    to_csv(
+        RESULTS_KEYS + results + summary_row,
+        '%sfirst_task.%s.results.csv' % (RESULTS_FOLDER, setting_name)
+    )
+
     to_csv(
         [tuple([f] + list(key)) for key, f in errors.most_common()],
-        'first_task.errors.csv'
+        '%sfirst_task.%s.errors.csv' % (RESULTS_FOLDER, setting_name)
     )
-    
+
     to_csv(
         qtypes.dump(),
-        'first_task.error.question_types.csv'
+        '%sfirst_task.error.%s.question_types.csv' % (RESULTS_FOLDER, setting_name)
     )
+
+    return summary_row[0]
 
 
 
