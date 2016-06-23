@@ -15,8 +15,8 @@ from SecondTask import (
 from Tools import to_csv
 
 
-RESULTS_KEYS = ('Setting', 'Run #', 'TruePositives', 'TrueNegatives', 'FalsePositives',
-                'FalseNegatives', 'Precision', 'Recall', 'F-1_Measure')
+RESULTS_KEYS = [('Setting', 'Run #', 'TruePositives', 'TrueNegatives', 'FalsePositives',
+                'FalseNegatives', 'Precision', 'Recall', 'F-1_Measure')]
 RATIO_TEST_DATA = 0.4
 RATIO_SPECIFICITY = 1.0
 RATIO_CONFIDENCE = 0.9
@@ -42,14 +42,14 @@ PARAMETER_SKIPGRAMS = [
 ]
 
 PARAMETER_TEST_DATA = [
-    ('0.1', 0.1),
+#     ('0.1', 0.1),
     ('0.2', 0.2),
     ('0.4', 0.4)
 ]
 
 PARAMETER_RATIO_CONFIDENCE = [
     ('0.5', 0.5),
-    ('0.8', 0.8),
+#     ('0.8', 0.8),
     ('0.9', 0.9)
 ]
 
