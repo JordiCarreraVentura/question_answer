@@ -463,5 +463,22 @@ def bow(fe, text, ratio, prob_filter=None):
         return words(text)
     else:
         prob_words = sorted([(prob_filter[w], w) for w in words(text)])
-#         return fe(' '.join([w for p, w in prob_words[-int(len(prob_words) * ratio):]]))
-        return [w for p, w in prob_words[-int(len(prob_words) * ratio):]]
+        return fe(' '.join([w for p, w in prob_words[-int(len(prob_words) * ratio):]]))
+#         return [w for p, w in prob_words[-int(len(prob_words) * ratio):]]
+
+
+def rounding(f):
+    if isinstance(f, int):
+        return f
+    else:
+        return round(f, 4)
+
+
+def columns(results):
+    if not results:
+        return []
+    cols = []
+    for i in range(1, len(results[0])):
+        col = [row[i] for row in results]
+        cols.append(col)
+    return cols
