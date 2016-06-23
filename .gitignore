@@ -92,3 +92,4 @@ ENV/
 *.csv
 trash.py
 log.txt
+Results.savedSearch
