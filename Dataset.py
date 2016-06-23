@@ -7,7 +7,7 @@ from collections import (
     defaultdict as deft
 )
 
-from nltk import sent_tokenize as splitter
+# from nltk import sent_tokenize as splitter
 
 from random import choice
 
