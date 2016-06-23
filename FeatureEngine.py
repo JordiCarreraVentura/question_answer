@@ -18,10 +18,11 @@ EXCEPTIONS = {
 
 class FeatureEngine:
 
-    def __init__(self, ch_ngrams=True, ngrams=False, lang='en'):
+    def __init__(self, ngrams=[], ch_ngrams=[], skip_ngrams=[], lang='en'):
         self.lang = lang
         self._ngrams = ngrams
         self._ch_ngrams = ch_ngrams
+        self._skip_ngrams = skip_ngrams
         self.stopwords = deft(bool)
         for w in STOPWORDS[self.lang]:
             if w not in EXCEPTIONS[self.lang]:
@@ -38,9 +39,12 @@ class FeatureEngine:
 
     def __grams(self, tokens):
         grams = []
+        if self._ngrams:
+            for n in self._ngrams:
+                grams += [' '.join(g) for g in ngrams(tokens, n)]
         if self._ch_ngrams:
             for token in tokens:
-                for n in [4, 5, 6]:
+                for n in self._ch_ngrams:
     #             for n in [4]:
     #                 if token == 'PUNCT' or \
     #                 self.stopwords[token] or \
@@ -55,18 +59,13 @@ class FeatureEngine:
                         grams.append(token)
                     else:
                         grams += [''.join(g) for g in ngrams(token, n)]
-        if not self._ngrams:
-            return grams
-        for n in [2, 3, 4]:
-#         for n in [2]:
+        for n in self._skip_ngrams:
             _grams = ngrams(tokens, n)
             for _g in _grams:
                 if 'PUNCT' in _g:
                     continue
                 elif n > 2:
                     grams.append(' '.join([_g[0], '*', _g[-1]]))
-                else:
-                    grams.append(' '.join(_g))
 #         grams = self.__sequence_deduplication(grams)
         return grams
 
