@@ -1,4 +1,6 @@
 
+import time
+
 from Dataset import Dataset
 
 from collections import (
@@ -28,10 +30,11 @@ from Tools import (
 RESULTS_KEYS = [
     ('Iteration', 'TruePositives', 'TrueNegatives',
      'FalsePositives', 'FalseNegatives',
-     'Precision', 'Recall', 'F-1_Measure')
+     'Precision', 'Recall', 'F-1_Measure', 'Time')
     ]
 ERROR_KEYS = ('Occurrences', 'ErrorType', 'Predicted', 'Expected')
-RESULTS_FOLDER = 'results/second/'
+RESULTS_FOLDER = 'results_testn0.2/first/'
+RESULTS_FOLDER = 'results/first/'
 
 def runner(
         PATH_DATA,
@@ -48,6 +51,7 @@ def runner(
     qtypes = QuestionTypes()
     for e in range(1, EXPERIMENTS + 1):
 
+        start = time.time()
         dataset = Dataset(PATH_DATA)
         dataset.load()
 
@@ -59,6 +63,7 @@ def runner(
             (bow(fe, text, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
             for text, label, mark in dataset.train()
         ]
+        train = train * 4
 
         test = [
             (bow(fe, label, RATIO_SPECIFICITY, prob_filter=invprob), label, mark)
@@ -78,7 +83,7 @@ def runner(
             index.update(tbow)
             index.add(label)
 
-        tp, tn, fp, fn = 0, 0, 0, 0
+        tp, tn, fp, fn, prec, rec, f, duration = 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0
         marked = sum([1 for _, _, mark in test if mark])
         for tbow, label, mark in test:
             qtypes.increment(label)
@@ -120,6 +125,7 @@ def runner(
                     errors[('fp', guess, label)] += 1
                     qtypes.update('fp', guess, label)
 
+            duration = time.time() - start
             if tp:
                 prec = tp / float(tp + fp)
                 rec = tp / float(tp + fn)
@@ -127,14 +133,14 @@ def runner(
             else:
                 prec, rec, f = 0.0, 0.0, 0.0
 
-            vector = (e, _r(tp), _r(tn), _r(fp),
-                      _r(fn), _r(prec), _r(rec), _r(f))
-            results.append(vector)
+        vector = (e, _r(tp), _r(tn), _r(fp), _r(fn),
+                  _r(prec), _r(rec), _r(f), _r(duration))
+        results.append(vector)
 
-            print '%d, tp: %d, tn: %d, fp: %d, fn: %d, all: %d, prec: %.2f, rec: %.2f, f1: %.2f' % (e, tp, tn, fp, fn, sum([tp, tn, fp, fn]), prec, rec, f)
-            precs, recs, fs = zip(*results)[-3:]
-            print e, avg(precs), avg(recs), avg(fs)
-            print '---'
+        print '%d, tp: %d, tn: %d, fp: %d, fn: %d, all: %d, prec: %.2f, rec: %.2f, f1: %.2f, time=%.2f' % (e, tp, tn, fp, fn, sum([tp, tn, fp, fn]), prec, rec, f, duration)
+        precs, recs, fs = zip(*results)[-4:-1]
+        print e, avg(precs), avg(recs), avg(fs)
+        print '---'
 
     if not results:
         return None
