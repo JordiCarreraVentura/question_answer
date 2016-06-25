@@ -16,11 +16,11 @@ from Tools import to_csv
 
 
 RESULTS_KEYS = [('Setting', 'Run #', 'TruePositives', 'TrueNegatives', 'FalsePositives',
-                'FalseNegatives', 'Precision', 'Recall', 'F-1_Measure')]
+                'FalseNegatives', 'Precision', 'Recall', 'F-1_Measure', 'Duration')]
 RATIO_TEST_DATA = 0.4
 RATIO_SPECIFICITY = 1.0
 RATIO_CONFIDENCE = 0.9
-EXPERIMENTS = 2
+EXPERIMENTS = 10
 PATH_DATA = '/Users/jordi/Laboratorio/corpora/anotados/Microsoft-WikiQA-corpus/WikiQACorpus/WikiQA.tsv'
 
 PARAMETERS = ['grams', 'chgrams', 'sgrams', 'test_n', 'r_conf']
@@ -28,7 +28,7 @@ PARAMETERS = ['grams', 'chgrams', 'sgrams', 'test_n', 'r_conf']
 PARAMETER_GRAMS = [
     ('off', []),
     ('uni', [1]),
-    ('uni-bi-tri', [1, 2, 3])
+#     ('uni-bi-tri', [1, 2, 3])
 ]
 
 PARAMETER_CHGRAMS = [
@@ -43,12 +43,12 @@ PARAMETER_SKIPGRAMS = [
 
 PARAMETER_TEST_DATA = [
 #     ('0.1', 0.1),
-    ('0.2', 0.2),
+#     ('0.2', 0.2),
     ('0.4', 0.4)
 ]
 
 PARAMETER_RATIO_CONFIDENCE = [
-    ('0.5', 0.5),
+#     ('0.5', 0.5),
 #     ('0.8', 0.8),
     ('0.9', 0.9)
 ]
@@ -132,11 +132,11 @@ if __name__ == '__main__':
 
 
     to_csv(
-        RESULTS_KEYS + sorted(results_first, key=lambda x: x[-1], reverse=True),
+        RESULTS_KEYS + sorted(results_first, key=lambda x: x[-2], reverse=True),
         'results.first_task.csv'
     )
 
     to_csv(
-        RESULTS_KEYS + sorted(results_second, key=lambda x: x[-1], reverse=True),
+        RESULTS_KEYS + sorted(results_second, key=lambda x: x[-2], reverse=True),
         'results.second_task.csv'
     )
