@@ -16,10 +16,10 @@ from Tools import to_csv
 
 RESULTS_KEYS = [('Setting', 'Run #', 'TruePositives', 'TrueNegatives', 'FalsePositives',
                 'FalseNegatives', 'Precision', 'Recall', 'F-1_Measure', 'Duration')]
-RATIO_TEST_DATA = 0.4
+# RATIO_TEST_DATA = 0.4
+# RATIO_CONFIDENCE = 0.9
 RATIO_SPECIFICITY = 1.0
-RATIO_CONFIDENCE = 0.9
-EXPERIMENTS = 10
+EXPERIMENTS = 40
 PATH_DATA = '/Users/jordi/Laboratorio/corpora/anotados/Microsoft-WikiQA-corpus/WikiQACorpus/WikiQA.tsv'
 
 PARAMETERS = ['grams', 'chgrams', 'sgrams', 'test_n', 'r_conf']
@@ -27,7 +27,7 @@ PARAMETERS = ['grams', 'chgrams', 'sgrams', 'test_n', 'r_conf']
 PARAMETER_GRAMS = [
     ('off', []),
     ('uni', [1]),
-#     ('uni-bi-tri', [1, 2, 3])
+    ('uni-bi-tri', [1, 2, 3])
 ]
 
 PARAMETER_CHGRAMS = [
@@ -42,12 +42,12 @@ PARAMETER_SKIPGRAMS = [
 
 PARAMETER_TEST_DATA = [
 #     ('0.1', 0.1),
-#     ('0.2', 0.2),
+    ('0.2', 0.2),
     ('0.4', 0.4)
 ]
 
 PARAMETER_RATIO_CONFIDENCE = [
-#     ('0.5', 0.5),
+    ('0.5', 0.5),
 #     ('0.8', 0.8),
     ('0.9', 0.9)
 ]
@@ -118,9 +118,9 @@ if __name__ == '__main__':
 
         _results = second_task(
             PATH_DATA,
-            RATIO_TEST_DATA,
+            setting['test_n']['data'],
             RATIO_SPECIFICITY,
-            RATIO_CONFIDENCE,
+            setting['r_conf']['data'],
             EXPERIMENTS,
             fe,
             setting_name
