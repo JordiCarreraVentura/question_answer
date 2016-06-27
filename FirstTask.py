@@ -119,7 +119,7 @@ def runner(
             else:
                 if mark and guess == label:
                     tp += 1
-                elif mark:
+                else:
                     fp += 1
                     _qtype = '_'.join(guess.lower().split()[:2])
                     errors[('fp', guess, label)] += 1
