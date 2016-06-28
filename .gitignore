@@ -93,3 +93,5 @@ ENV/
 trash.py
 log.txt
 Results.savedSearch
+*.tsv
+results.py
