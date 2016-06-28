@@ -16,8 +16,6 @@ from Tools import to_csv
 
 RESULTS_KEYS = [('Setting', 'Run #', 'TruePositives', 'TrueNegatives', 'FalsePositives',
                 'FalseNegatives', 'Precision', 'Recall', 'F-1_Measure', 'Duration')]
-# RATIO_TEST_DATA = 0.4
-# RATIO_CONFIDENCE = 0.9
 RATIO_SPECIFICITY = 1.0
 EXPERIMENTS = 40
 PATH_DATA = 'WikiQA.tsv'
@@ -66,7 +64,9 @@ def discard_nograms(settings):
 
 if __name__ == '__main__':
 
+
     #	generate experimental settings:
+
     settings = [dict([])]
     for name, parameter in [
         ('grams', PARAMETER_GRAMS),
@@ -88,7 +88,10 @@ if __name__ == '__main__':
         settings = new
     settings = discard_nograms(new)
 
-    #	run all experiments with settings:
+
+
+    #	run all experiments:
+
     results_first, results_second = [], []
     for setting in settings:
 
@@ -103,6 +106,7 @@ if __name__ == '__main__':
             skip_ngrams=setting['sgrams']['data']
         )
 
+        #	run 1st task:
         _results = first_task(
             PATH_DATA,
             setting['test_n']['data'],
@@ -116,6 +120,8 @@ if __name__ == '__main__':
         if _results:
             results_first.append(tuple([setting_name] + list(_results)))
 
+
+        #	run 2nd task:
         _results = second_task(
             PATH_DATA,
             setting['test_n']['data'],
@@ -129,6 +135,8 @@ if __name__ == '__main__':
         if _results:
             results_second.append(tuple([setting_name] + list(_results)))
 
+
+    #	save summary of results to .csv in the repository home folder:
 
     to_csv(
         RESULTS_KEYS + sorted(results_first, key=lambda x: x[-2], reverse=True),
