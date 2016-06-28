@@ -18,6 +18,7 @@ from Tools import (
     average as avg,
     bow,
     columns,
+    create_folder,
     f1,
     normalize,
     rounding as _r,
@@ -33,8 +34,8 @@ RESULTS_KEYS = [
      'Precision', 'Recall', 'F-1_Measure', 'Time')
     ]
 ERROR_KEYS = ('Occurrences', 'ErrorType', 'Predicted', 'Expected')
-RESULTS_FOLDER = 'results_testn0.2/first/'
-RESULTS_FOLDER = 'results/first/'
+RESULTS_FOLDER = 'results_testn0.2/second/'
+RESULTS_FOLDER = 'results/second/'
 
 def runner(
         PATH_DATA,
@@ -152,6 +153,7 @@ def runner(
         tuple(['all'] + columns_int + columns_float)
     ]
 
+    create_folder(RESULTS_FOLDER)
     to_csv(
         RESULTS_KEYS + results + summary_row,
         '%ssecond_task.%s.results.csv' % (RESULTS_FOLDER, setting_name)

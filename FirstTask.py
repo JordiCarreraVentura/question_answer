@@ -18,6 +18,7 @@ from Tools import (
     average as avg,
     bow,
     columns,
+    create_folder,
     f1,
     normalize,
     rounding as _r,
@@ -152,6 +153,7 @@ def runner(
         tuple(['all'] + columns_int + columns_float)
     ]
 
+    create_folder(RESULTS_FOLDER)
     to_csv(
         RESULTS_KEYS + results + summary_row,
         '%sfirst_task.%s.results.csv' % (RESULTS_FOLDER, setting_name)
