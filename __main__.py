@@ -20,7 +20,7 @@ RESULTS_KEYS = [('Setting', 'Run #', 'TruePositives', 'TrueNegatives', 'FalsePos
 # RATIO_CONFIDENCE = 0.9
 RATIO_SPECIFICITY = 1.0
 EXPERIMENTS = 40
-PATH_DATA = '/Users/jordi/Laboratorio/corpora/anotados/Microsoft-WikiQA-corpus/WikiQACorpus/WikiQA.tsv'
+PATH_DATA = 'WikiQA.tsv'
 
 PARAMETERS = ['grams', 'chgrams', 'sgrams', 'test_n', 'r_conf']
 
